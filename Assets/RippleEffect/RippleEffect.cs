@@ -69,7 +69,7 @@ public class RippleEffect : MonoBehaviour
             return new Vector4(MousePos.x+.9f, MousePos.y+.5f, time, 0);   
         } 
     }
-
+    public static RippleEffect Instance;
     Droplet[] droplets;
     Texture2D gradTexture;
     Material material;
@@ -83,15 +83,15 @@ public class RippleEffect : MonoBehaviour
         material.SetVector("_Drop1", droplets[0].MakeShaderParameter(c.aspect));
         //material.SetVector("_Drop2", droplets[1].MakeShaderParameter(c.aspect));
         //material.SetVector("_Drop3", droplets[2].MakeShaderParameter(c.aspect));
-
-        material.SetColor("_Reflection", reflectionColor);
+         material.SetColor("_Reflection", reflectionColor);
         material.SetVector("_Params1", new Vector4(c.aspect, 1, 1 / waveSpeed, 0));
         material.SetVector("_Params2", new Vector4(1, 1 / c.aspect, refractionStrength, reflectionStrength));
     }
 
     void Awake()
     {
-        _tempdropInterval = dropInterval;
+        Instance = this;
+        _tempdropInterval = dropInterval;  
         _MouseHit = false;
         Counter = 0;
         droplets = new Droplet[1]; 
@@ -133,14 +133,9 @@ public class RippleEffect : MonoBehaviour
                 {
                     Counter += 1;
                      _androidText.text = "Plane Hited  = " + Counter;
-                    print(hit.point);
-                     print(hit.collider.gameObject.name);
-                    MousePos = hit.point;
-                    _MouseHit = true;
-                    dropInterval = _tempdropInterval;
-                    StopCoroutine(Stopbool());
-                    StartCoroutine(Stopbool()); 
-                  }
+                      MousePos = hit.point;
+                    FishController.Instance.MouseTouchPoint(MousePos);
+                }  
             }
         }
 #endif
@@ -154,20 +149,17 @@ public class RippleEffect : MonoBehaviour
                 RaycastHit hit;
                 Ray ray = Camera.main.ScreenPointToRay(touch.position);
                 // Create a particle if hit
-                if (Physics.Raycast(ray, out hit, 100.0f))
+                if (Physics.Raycast(ray, out hit, 100.0f))    
                 {  
-                    if (hit.collider.gameObject.tag == "Plane")
+                    if (hit.collider.gameObject.tag == "Plane")  
                     {
                         Counter += 1;
                         _androidText.text = "touch plane hited Android= " + Counter;
                          print(hit.point);
-                          MousePos = hit.point;
-                        _MouseHit = true;
-                        dropInterval = _tempdropInterval;  
-                        StopCoroutine(Stopbool());
-                        StartCoroutine(Stopbool());  
-                    }   
-                }
+                         MousePos = hit.point;
+                         FishController.Instance.MouseTouchPoint(MousePos);   
+                     }  
+                }  
             }
         }
 #endif
@@ -188,10 +180,28 @@ public class RippleEffect : MonoBehaviour
 
         UpdateShaderParameters();
     }
+
+    public void ReachedMousePoint(Vector3 _MouseReachedPoint)
+    {
+        if(MousePos == _MouseReachedPoint)
+        {
+            print("same Point");
+            _MouseHit = true;
+            dropInterval = _tempdropInterval;
+            StopCoroutine(Stopbool());
+            StartCoroutine(Stopbool()); 
+        }
+        else
+        {
+            print("Diff Point");
+         }
+    }
+
     IEnumerator Stopbool()
     {
         yield return new WaitForSeconds(1);
         dropInterval = 0;
+        FishController.Instance.ReturntoPath(); 
     } 
 
     void OnRenderImage(RenderTexture source, RenderTexture destination)
