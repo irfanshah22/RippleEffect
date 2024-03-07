@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Test.unity
+    path: Assets/Scenes/RippleScene.unity
     guid: 8e245a72ea8254a97bd9932af5f6fc74
   m_configObjects: {}
