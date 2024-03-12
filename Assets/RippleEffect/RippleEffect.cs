@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-
+  
 public class RippleEffect : MonoBehaviour
 {
     public AnimationCurve waveform = new AnimationCurve(
@@ -135,12 +135,17 @@ public class RippleEffect : MonoBehaviour
                      _androidText.text = "Plane Hited  = " + Counter;
                       MousePos = hit.point;
                     FishController.Instance.MouseTouchPoint(MousePos);
+                    _MouseHit = true;
+                    dropInterval = _tempdropInterval;
+                    StopCoroutine(Stopbool());
+                    StopCoroutine(ReturntoPath());
+                    StartCoroutine(Stopbool());
                 }  
-            }
+            }  
         }
 #endif
 #if UNITY_ANDROID
-        if (Input.touchCount > 0)
+        if (Input.touchCount > 0)  
         {
               if (Input.GetTouch(0).phase == TouchPhase.Began)
             {
@@ -157,8 +162,13 @@ public class RippleEffect : MonoBehaviour
                         _androidText.text = "touch plane hited Android= " + Counter;
                          print(hit.point);
                          MousePos = hit.point;
-                         FishController.Instance.MouseTouchPoint(MousePos);   
-                     }  
+                        FishController.Instance.MouseTouchPoint(MousePos);
+                        _MouseHit = true;
+                        dropInterval = _tempdropInterval;  
+                        StopCoroutine(Stopbool());
+                        StopCoroutine(ReturntoPath());
+                         StartCoroutine(Stopbool());
+                    }  
                 }  
             }
         }
@@ -183,26 +193,20 @@ public class RippleEffect : MonoBehaviour
 
     public void ReachedMousePoint(Vector3 _MouseReachedPoint)
     {
-        if(MousePos == _MouseReachedPoint)
-        {
-            print("same Point");
-            _MouseHit = true;
-            dropInterval = _tempdropInterval;
-            StopCoroutine(Stopbool());
-            StartCoroutine(Stopbool()); 
-        }
-        else
-        {
-            print("Diff Point");
-         }
-    }
-
-    IEnumerator Stopbool()
+             print("same Point");
+        // StopCoroutine(ReturntoPath());
+     }
+     IEnumerator Stopbool()
     {
         yield return new WaitForSeconds(1);
         dropInterval = 0;
-        FishController.Instance.ReturntoPath(); 
-    } 
+        StartCoroutine(ReturntoPath());
+     }
+    IEnumerator ReturntoPath()
+    {
+        yield return new WaitForSeconds(1);
+         FishController.Instance.ReturntoPath();
+    }
 
     void OnRenderImage(RenderTexture source, RenderTexture destination)
     {

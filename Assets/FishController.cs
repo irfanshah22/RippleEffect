@@ -7,7 +7,7 @@ public class FishController : MonoBehaviour
     public static FishController Instance;
     public Transform _pathtoMove;
     private bool _startingbool;
-    private bool _startMousebool;
+    public bool _startMousebool;
     private float startTime;
     public float speed = 1.0F;
     private float journeyLength;
@@ -16,7 +16,10 @@ public class FishController : MonoBehaviour
     public Vector3 OrgtargetMouse;
     Quaternion targetRotation;
     public Animator _myAnimator;
-    private void Awake()
+   public  FishState myDirection;
+
+    public enum FishState { Running, Walk };
+     private void Awake()
     {
         Instance = this;
     }
@@ -24,6 +27,7 @@ public class FishController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        myDirection = FishState.Walk;
         target = SelectRandomPoint();
         startTime = Time.time;
         _myAnimator.SetBool("ismoving", true);
@@ -40,13 +44,13 @@ public class FishController : MonoBehaviour
     {
         if (_startingbool) 
         {
-        
-
+             
+            myDirection = FishState.Walk;
             // Distance moved equals elapsed time times speed..
             float distCovered = (Time.time - startTime) * speed;
-             // Fraction of journey completed equals current distance divided by total distance.
+            // Fraction of journey completed equals current distance divided by total distance.
             float fractionOfJourney = distCovered / journeyLength;
-             // Set our position as a fraction of the distance between the markers.
+            // Set our position as a fraction of the distance between the markers.
             transform.position = Vector3.Lerp(this.transform.position, target.position, fractionOfJourney);
              transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation,speed *10);
             if (Vector3.Distance(this.transform.position, target.position) < .1)  
@@ -58,15 +62,17 @@ public class FishController : MonoBehaviour
                  Vector3 targetDirection = (target.position - transform.position).normalized;
                 targetRotation = Quaternion.LookRotation(targetDirection);
             }  
-        }
+         }
         else if (_startMousebool)
         {
+            myDirection = FishState.Running;
              float distCovered = (Time.time - startTime) * speed;
              float fractionOfJourney = distCovered / journeyLength;
-             transform.position = Vector3.Lerp(this.transform.position, targetMouse, fractionOfJourney *10); 
-            transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, speed * 50); 
-            if (Vector3.Distance(this.transform.position, targetMouse) < .05)   
+             transform.position = Vector3.Lerp(this.transform.position, targetMouse, fractionOfJourney *20); 
+            transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, speed * 70);  
+            if (Vector3.Distance(this.transform.position, targetMouse) < .05)
             {
+                print("Reached here"); 
                 RippleEffect.Instance.ReachedMousePoint(OrgtargetMouse);
                  _startingbool = false;
                 _startMousebool = false;
@@ -77,7 +83,7 @@ public class FishController : MonoBehaviour
         }
      }
     public void MouseTouchPoint(Vector3 _mousetouchPos)
-    {
+    {  
         startTime = Time.time;
         OrgtargetMouse = _mousetouchPos;
         targetMouse = _mousetouchPos;
@@ -88,18 +94,21 @@ public class FishController : MonoBehaviour
         _startingbool = false;
         _startMousebool = true;
         _myAnimator.SetBool("ismoving", false);
-        _myAnimator.SetBool("run", true);  
-    }
+        _myAnimator.SetBool("run", true);      
+    }   
     public void ReturntoPath()
     {
+        print("returned to Path here");  
+
         target = SelectRandomPoint();
         startTime = Time.time;
         journeyLength = Vector3.Distance(this.transform.position, target.position);
-        _startingbool = true;
-        Vector3 targetDirection = (target.position - transform.position).normalized;
-        targetRotation = Quaternion.LookRotation(targetDirection);
+        if(!_startMousebool)
+        _startingbool = false; 
+        //Vector3 targetDirection = (target.position - transform.position).normalized; 
+        //targetRotation = Quaternion.LookRotation(targetDirection);
         _myAnimator.SetBool("ismoving", true);
-        _myAnimator.SetBool("run", false);
+        _myAnimator.SetBool("run", false);  
     }
     Transform  SelectRandomPoint()
     {
