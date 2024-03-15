@@ -98,8 +98,7 @@ public class RippleEffect : MonoBehaviour
         droplets[0] = new Droplet();
         //droplets[1] = new Droplet();
         //droplets[2] = new Droplet();
-
-        gradTexture = new Texture2D(2048, 1, TextureFormat.Alpha8, false);
+         gradTexture = new Texture2D(2048, 1, TextureFormat.Alpha8, false);
         gradTexture.wrapMode = TextureWrapMode.Clamp;
         gradTexture.filterMode = FilterMode.Bilinear;
         for (var i = 0; i < gradTexture.width; i++)
@@ -109,8 +108,7 @@ public class RippleEffect : MonoBehaviour
             gradTexture.SetPixel(i, 0, new Color(a, a, a, a));
         }
         gradTexture.Apply();    
-
-        material = new Material(shader);
+         material = new Material(shader);
         material.hideFlags = HideFlags.DontSave;
         material.SetTexture("_GradTex", gradTexture);  
         // UpdateShaderParameters();
@@ -122,8 +120,7 @@ public class RippleEffect : MonoBehaviour
          if (Input.GetMouseButtonDown(0))
         {
             _androidText.text = "Mouse Clicked";
-
-            RaycastHit hit;
+             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit, 100.0f))
             {
@@ -137,12 +134,13 @@ public class RippleEffect : MonoBehaviour
                     FishController.Instance.MouseTouchPoint(MousePos);
                     _MouseHit = true;
                     dropInterval = _tempdropInterval;
+                    timer = dropInterval; 
                     StopCoroutine(Stopbool());
                     StopCoroutine(ReturntoPath());
                     StartCoroutine(Stopbool());
                 }  
             }  
-        }
+        }  
 #endif
 #if UNITY_ANDROID
         if (Input.touchCount > 0)  
@@ -178,15 +176,15 @@ public class RippleEffect : MonoBehaviour
             return; 
         if (dropInterval > 0)
         {
+
             timer += Time.deltaTime;
-            while (timer > dropInterval)
+             while (timer > dropInterval)
             {
-                Emit();
+                 Emit();
                 timer -= dropInterval;
             }
-        }
-
-        foreach (var d in droplets) d.Update(); 
+        }  
+         foreach (var d in droplets) d.Update(); 
 
         UpdateShaderParameters();
     }
@@ -215,6 +213,6 @@ public class RippleEffect : MonoBehaviour
 
     public void Emit()
     {
-        droplets[dropCount++ % droplets.Length].Reset();
+         droplets[dropCount++ % droplets.Length].Reset();
     }
 }
